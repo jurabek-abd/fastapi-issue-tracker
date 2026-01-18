@@ -50,7 +50,7 @@ Once running, visit:
 │   ├── schemas.py          # Pydantic models
 │   └── storage.py          # JSON file storage 
 └── data/
-    └── issues.json   # Data storage (auto-created)
+    └── issues.json         # Data storage (auto-created)
 ```
 
 ## Credits
