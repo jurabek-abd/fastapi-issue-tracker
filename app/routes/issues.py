@@ -1,22 +1,27 @@
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.schemas import IssueCreate, IssueOut, IssueStatus, IssueUpdate
+from app.auth import get_current_active_user
+from app.schemas import IssueCreate, IssueOut, IssueStatus, IssueUpdate, User
 from app.storage import load_data, save_data
 
 router = APIRouter(prefix="/api/v1/issues", tags=["issues"])
 
 
 @router.get("/", response_model=list[IssueOut])
-def get_issues():
+def get_issues(current_user: Annotated[User, Depends(get_current_active_user)]):
     """Retrieve all issues."""
     issues = load_data()
     return issues
 
 
 @router.post("/", response_model=IssueOut, status_code=status.HTTP_201_CREATED)
-def create_issue(payload: IssueCreate):
+def create_issue(
+    payload: IssueCreate,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
     """Create a new issue."""
     issues = load_data()
     new_issue = {
@@ -32,7 +37,9 @@ def create_issue(payload: IssueCreate):
 
 
 @router.get("/{issue_id}", response_model=IssueOut)
-def get_issue(issue_id: str):
+def get_issue(
+    issue_id: str, current_user: Annotated[User, Depends(get_current_active_user)]
+):
     """Retrieve a specific issue by ID."""
     issues = load_data()
     for issue in issues:
@@ -42,7 +49,11 @@ def get_issue(issue_id: str):
 
 
 @router.put("/{issue_id}", response_model=IssueOut)
-def update_issue(issue_id: str, payload: IssueUpdate):
+def update_issue(
+    issue_id: str,
+    payload: IssueUpdate,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
     """Update an existing issue."""
     issues = load_data()
     for index, issue in enumerate(issues):
@@ -63,7 +74,9 @@ def update_issue(issue_id: str, payload: IssueUpdate):
 
 
 @router.delete("/{issue_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_issue(issue_id: str):
+def delete_issue(
+    issue_id: str, current_user: Annotated[User, Depends(get_current_active_user)]
+):
     """Delete an issue by ID."""
     issues = load_data()
     for index, issue in enumerate(issues):
